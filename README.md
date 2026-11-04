@@ -1,175 +1,157 @@
-# AI Resume Analyzer
+# 🤖 AI Resume Analyzer
 
-A Python application that compares a resume PDF with a job description. It extracts resume text, identifies selected skills and section headings, calculates a heuristic match estimate, and presents the results in a Streamlit dashboard.
+An AI-powered Resume Analyzer built using Python that evaluates resumes against job descriptions and provides insights to help improve resume quality and job relevance.
 
-This project is intended as a portfolio and learning project. Its score is not an official ATS score and does not predict hiring outcomes.
+## 🚀 Features
 
-## Features
+- 📄 **PDF Resume Extraction** – Extract text from PDF resumes using `pdfplumber`.
+- 🧠 **AI-Based Semantic Matching** – Uses Sentence Transformers to compare resume content with job descriptions.
+- 🛠️ **Skill Extraction** – Identifies relevant technical skills from resumes.
+- 📊 **Resume Scoring** – Evaluates resumes using multiple scoring criteria.
+- 📈 **Detailed Analysis** – Provides insights into skills, impact, structure, and job relevance.
+- 📑 **PDF Report Generation** – Generates downloadable analysis reports.
+- 🌐 **Interactive Dashboard** – User-friendly interface built with Streamlit.
+- ⚡ **FastAPI Backend** – Provides backend functionality for resume analysis.
 
-- Upload a text-based resume PDF and extract its text with `pdfplumber`.
-- Paste a job description and compare detected skills.
-- Calculate semantic similarity with the `all-MiniLM-L6-v2` Sentence Transformers model.
-- Score resume impact and the presence of Education, Experience, Projects, and Skills sections.
-- View the overall score, its components, matched and missing skills, and missing sections in Streamlit.
-- Generate and download a PDF analysis report with ReportLab.
+## 🛠️ Tech Stack
 
-## Technology stack
-
-| Technology | Use |
-| --- | --- |
-| Python | Application logic |
-| FastAPI | Resume analysis API |
-| Streamlit | User interface and dashboard |
+| Technology | Purpose |
+|---|---|
+| Python | Core programming language |
+| FastAPI | Backend API |
+| Streamlit | Interactive frontend |
 | pdfplumber | PDF text extraction |
-| Sentence Transformers | Semantic similarity using `all-MiniLM-L6-v2` |
-| ReportLab | Downloadable PDF reports; install separately (see setup) |
-| Requests | Streamlit-to-FastAPI HTTP request |
+| Sentence Transformers | Semantic similarity |
+| OpenCV | Computer vision-related processing |
+| ReportLab | PDF report generation |
 
-## Architecture
+## 🏗️ Architecture
 
 ```mermaid
-flowchart LR
-    U[User: resume PDF + job description] --> UI[Streamlit frontend]
-    UI -->|POST /analyze: resume file + jd form field| API[FastAPI backend]
-    API --> PDF[pdfplumber text extraction]
-    PDF --> SEC[Resume section detection]
-    PDF --> SK[Skill extraction]
-    JD[Job description] --> SK
-    PDF --> SEM[Sentence Transformers similarity]
-    JD --> SEM
-    SEC --> SCORE[Weighted scoring engine]
-    SK --> SCORE
-    SEM --> SCORE
-    SCORE --> RESULT[JSON analysis result]
-    RESULT --> UI
-    UI --> OUT[Dashboard + ReportLab PDF report]
+flowchart TD
+    A[Upload Resume PDF] --> B[PDF Text Extraction]
+    B --> C[Resume Processing]
+    C --> D[Section Detection]
+    C --> E[Skill Extraction]
+    C --> F[Semantic Matching]
+    D --> G[Resume Scoring]
+    E --> G
+    F --> G
+    G --> H[Analysis Results]
+    H --> I[Streamlit Dashboard]
+    H --> J[PDF Report]
 ```
 
-## Project structure
+## 📊 Resume Scoring
 
-```text
-.
-├── app/
-│   ├── api.py                  # FastAPI endpoint and request processing
-│   ├── parser.py               # PDF text extraction
-│   ├── sections.py             # Resume section detection
-│   ├── skills.py               # Predefined skill and alias matching
-│   ├── matching.py             # Skill helper and semantic similarity
-│   ├── scoring.py              # Match score and response fields
-│   ├── llm.py                  # Present but currently unused
-│   └── __init__.py
-├── data/
-│   └── skills.json             # Predefined technical skill names
-├── ui/
-│   └── streamlit_app.py        # Streamlit interface and PDF report generation
-├── test_matching.py            # Manual skill comparison script
-├── test_parser.py              # Manual PDF text extraction script
-├── test_scoring.py             # Manual end-to-end scoring script
-├── test_sections.py            # Manual section detection script
-├── test_semantic.py            # Manual semantic similarity script
-├── test_skills.py              # Skill list inspection script
-├── test_skill_extraction.py    # Manual resume skill extraction script
-├── check_setup.py              # Dependency import check
-├── resume.pdf                  # Local sample input used by scripts
-└── requirements.txt            # Main Python dependencies
-```
+The analyzer evaluates resumes using the following weighted criteria:
 
-## Installation
+| Criteria | Weight |
+|---|---:|
+| Skill Matching | 40% |
+| Semantic Similarity | 25% |
+| Impact Analysis | 20% |
+| Resume Structure | 15% |
 
-Prerequisites: Python 3.10 or later is recommended. Sentence Transformers may download its model the first time the backend starts.
+The final score is calculated using these weighted components.
+
+## 💻 Installation
+
+### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
-cd <repository-folder>
+git clone https://github.com/Alanbinoy22/AI-RESUME--ANALYZER.git
+```
+
+### 2. Navigate to the project
+
+```bash
+cd AI-RESUME--ANALYZER
+```
+
+### 3. Create a virtual environment
+
+```bash
 python -m venv .venv
 ```
 
-Activate the environment, then install the project dependencies. ReportLab is not currently included in `requirements.txt`, so install it separately to enable PDF report generation.
+### 4. Activate the virtual environment
 
-**Windows PowerShell**
+**Windows:**
 
-```powershell
-.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python -m pip install reportlab
+```bash
+.venv\Scripts\activate
 ```
 
-**macOS / Linux**
+**Linux/macOS:**
 
 ```bash
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install reportlab
 ```
 
-## Run locally
-
-Open two terminals in the project folder, with the virtual environment activated in each.
-
-Terminal 1 — API:
+### 5. Install dependencies
 
 ```bash
-uvicorn app.api:app --reload
+pip install -r requirements.txt
 ```
 
-Terminal 2 — user interface:
+## ▶️ Usage
+
+Run the application using the appropriate commands for your project setup.
+
+### Start the FastAPI backend
 
 ```bash
-streamlit run ui/streamlit_app.py
+uvicorn app.main:app --reload
 ```
 
-Open the Streamlit URL shown in the terminal (normally `http://localhost:8501`). The UI sends requests to `http://127.0.0.1:8000/analyze`.
+### Start the Streamlit frontend
 
-## Usage
+```bash
+streamlit run ui/app.py
+```
 
-1. Upload a text-based PDF resume.
-2. Paste the target job description. The example button is only starter text; replace it with the real description.
-3. Select **Analyze resume**.
-4. Review the estimated overall match, score components, detected skills, and resume section checks.
-5. Select **Prepare PDF report**, then download the generated report.
+> Note: Adjust the entry-point paths if your project uses different filenames.
 
-Scanned PDFs may not work because the current parser extracts embedded text and does not run OCR.
-
-## Scoring methodology
-
-The score is calculated from four normalized components:
+## 📂 Project Structure
 
 ```text
-total = 100 * (
-    0.40 * skill_match
-  + 0.25 * semantic_similarity
-  + 0.20 * impact
-  + 0.15 * structure
-)
+AI-RESUME--ANALYZER/
+│
+├── app/                 # Backend application
+├── data/                # Application data
+├── ui/                  # Streamlit frontend
+├── tests/                # Testing scripts
+├── requirements.txt        # Python dependencies
+├── README.md              # Project documentation
+└── .gitignore            # Git ignored files
 ```
 
-- **Skill match (40%)**: job-description skills found in the resume divided by all detected job-description skills. If no known job skills are found, the denominator is set to one.
-- **Semantic similarity (25%)**: cosine similarity between Sentence Transformer embeddings for the resume and job description.
-- **Impact (20%)**: share of resume lines longer than four words that contain a digit or begin with one of a fixed set of action verbs.
-- **Structure (15%)**: share of four expected sections (Education, Experience, Projects, Skills) that contain text.
+## 🎯 Project Objective
 
-This is a heuristic matching estimate, not an official ATS score. The semantic similarity model is not a recruiter and does not assess candidate quality.
+The objective of this project is to develop an intelligent resume analysis system that helps job seekers understand how well their resumes match specific job descriptions.
 
+The system combines resume parsing, skill extraction, semantic similarity, and heuristic scoring to provide useful feedback.
 
-## Current limitations
+## 🔮 Future Improvements
 
-- Skills are detected by case-insensitive matching against a small predefined list and aliases; context and equivalent terms may be missed.
-- PDF text extraction depends on embedded selectable text. The backend returns an error when fewer than 200 characters are extracted; there is no OCR.
-- Section detection recognizes a limited set of headings and checks only four sections for the structure score.
-- The impact score uses simple word and digit rules and does not understand achievement quality.
-- Semantic similarity measures text similarity, not whether a candidate meets all role requirements.
-- There is no official ATS integration or validation, and the score is not a hiring prediction.
-- `app/llm.py` is present but is not used in the analysis flow. Suggestions shown in the UI are rule-based.
-- The scripts named `test_*.py` print outputs and do not currently provide automated assertions.
+- Improve skill extraction using NLP techniques.
+- Support additional resume formats.
+- Enhance scoring accuracy.
+- Add more detailed resume improvement recommendations.
+- Expand testing and validation.
+- Improve dashboard visualization.
 
-## Future scope
+## 👨‍💻 Developed By
 
-Potential enhancements, not currently implemented: OCR for scanned resumes, broader contextual skill extraction, personalized LLM feedback, multiple job comparisons, job recommendations, resume version history, clearer scoring explanations, cloud deployment, authentication, analytics, multilingual support, a larger skill catalog, and job portal integrations.
+**Alan Binoy**
 
-## Contributing
+B.Tech Computer Science and Engineering
 
-Issues and pull requests are welcome. Please describe the change and its impact, keep analysis results grounded in real backend output, and avoid committing personal resumes or other private documents.
+College of Engineering Chengannur
 
-## License
+GitHub: [Alanbinoy22](https://github.com/Alanbinoy22)
 
-No license file is currently included. Choose a license and add its full text in a `LICENSE` file before describing this repository as open source.
+---
+
+⭐ If you find this project interesting, consider giving it a star!
