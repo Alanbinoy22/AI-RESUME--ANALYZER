@@ -150,9 +150,6 @@ total = 100 * (
 
 This is a heuristic matching estimate, not an official ATS score. The semantic similarity model is not a recruiter and does not assess candidate quality.
 
-## Screenshots
-
-No application screenshots are included yet. Add genuine screenshots of the running application here when available; do not use sample or fabricated analysis results.
 
 ## Current limitations
 
